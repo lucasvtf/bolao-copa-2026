@@ -1,0 +1,32 @@
+{
+  "name": "bolao-copa",
+  "version": "0.1.0",
+  "description": "Bot de Discord para bolão do mata-mata da Copa do Mundo 2026.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "deploy": "node src/deploy-commands.js",
+    "db:migrate": "node src/db/migrate.js",
+    "db:check": "node src/db/check.js",
+    "db:reset": "node src/db/reset.js",
+    "import": "node src/services/importMatches.js",
+    "seed:16": "node src/scripts/seed16avos.js",
+    "seed:oitavas": "node src/scripts/seedOitavas.js",
+    "seed:quartas": "node src/scripts/seedQuartas.js",
+    "seed:semis": "node src/scripts/seedSemis.js",
+    "seed:terceiro": "node src/scripts/seedTerceiro.js",
+    "seed:final": "node src/scripts/seedFinal.js",
+    "seed:tudo": "npm run seed:16 && npm run seed:oitavas && npm run seed:quartas && npm run seed:semis && npm run seed:terceiro && npm run seed:final",
+    "test": "node --test src/utils/pontuacao.test.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.5",
+    "node-cron": "^3.0.3",
+    "pg": "^8.13.1"
+  }
+}
