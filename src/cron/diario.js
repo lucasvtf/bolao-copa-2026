@@ -37,7 +37,8 @@ export async function rodarDiario(client) {
     return;
   }
 
-  const canal = await getCanal(client, 'CANAL_RESULTADOS');
+  const canalResultados = await getCanal(client, 'CANAL_RESULTADOS');
+  const canalRanking = await getCanal(client, 'CANAL_RANKING');
 
   for (const jogo of jogos) {
     let detalhes = [];
@@ -56,11 +57,11 @@ export async function rodarDiario(client) {
       );
       detalhes = rows;
     }
-    if (canal) await canal.send(montarPostResultado(jogo, detalhes));
+    if (canalResultados) await canalResultados.send(montarPostResultado(jogo, detalhes));
     await pool.query('UPDATE jogos SET resultado_postado = TRUE WHERE id = $1', [jogo.id]);
   }
 
-  if (canal) await canal.send(await montarPostRanking());
+  if (canalRanking) await canalRanking.send(await montarPostRanking());
 }
 
 function montarPostResultado(jogo, detalhes) {
