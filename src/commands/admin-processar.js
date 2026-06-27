@@ -2,6 +2,7 @@ import { SlashCommandBuilder } from 'discord.js';
 import { requireAdmin } from '../utils/admin.js';
 import { processarJogo, ProcessamentoError } from '../services/processarJogo.js';
 import { comBandeira } from '../utils/bandeiras.js';
+import { logarAcao } from '../db/audit.js';
 
 export const data = new SlashCommandBuilder()
   .setName('admin-processar')
@@ -17,6 +18,12 @@ export async function execute(interaction) {
 
   try {
     const r = await processarJogo(jogoId, { force });
+
+    await logarAcao(interaction, 'processar', {
+      jogoId,
+      detalhes: { force, palpites: r.processados },
+    });
+
     const top = [...r.detalhes]
       .sort((a, b) => b.pontos - a.pontos)
       .slice(0, 10)

@@ -51,3 +51,16 @@ CREATE TABLE IF NOT EXISTS palpites (
 );
 
 CREATE INDEX IF NOT EXISTS palpites_jogo_idx ON palpites (jogo_id);
+
+CREATE TABLE IF NOT EXISTS audit_log (
+  id          SERIAL PRIMARY KEY,
+  usuario_id  BIGINT NOT NULL,
+  username    TEXT NOT NULL,
+  acao        TEXT NOT NULL,
+  jogo_id     INT,
+  detalhes    JSONB,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS audit_log_created_at_idx ON audit_log (created_at DESC);
+CREATE INDEX IF NOT EXISTS audit_log_acao_idx ON audit_log (acao);

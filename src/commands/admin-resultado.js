@@ -2,6 +2,7 @@ import { SlashCommandBuilder } from 'discord.js';
 import { pool } from '../db/pool.js';
 import { requireAdmin } from '../utils/admin.js';
 import { comBandeira } from '../utils/bandeiras.js';
+import { logarAcao } from '../db/audit.js';
 
 export const data = new SlashCommandBuilder()
   .setName('admin-resultado')
@@ -60,6 +61,11 @@ export async function execute(interaction) {
      WHERE id = $5`,
     [placarCasa, placarFora, classificado, foiPenaltis, id],
   );
+
+  await logarAcao(interaction, 'resultado', {
+    jogoId: id,
+    detalhes: { placar_casa: placarCasa, placar_fora: placarFora, classificado, foi_penaltis: foiPenaltis },
+  });
 
   const reproc = jogo.processado ? ' (jogo já estava processado — pontuação pode precisar ser recalculada)' : '';
   await interaction.reply({

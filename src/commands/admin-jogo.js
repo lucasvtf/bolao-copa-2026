@@ -4,6 +4,7 @@ import { requireAdmin } from '../utils/admin.js';
 import { FASES, MULTIPLICADOR } from '../utils/fase.js';
 import { parseKickoff, formatKickoff } from '../utils/data.js';
 import { comBandeira } from '../utils/bandeiras.js';
+import { logarAcao } from '../db/audit.js';
 
 const faseChoices = FASES.map((f) => ({ name: f, value: f }));
 
@@ -64,6 +65,11 @@ async function addJogo(interaction) {
     [fase, timeCasa, timeFora, kickoff.toISOString(), MULTIPLICADOR[fase]],
   );
 
+  await logarAcao(interaction, 'jogo_add', {
+    jogoId: rows[0].id,
+    detalhes: { fase, time_casa: timeCasa, time_fora: timeFora, kickoff: kickoff.toISOString() },
+  });
+
   await interaction.reply({
     content: `Jogo #${rows[0].id} cadastrado: **${comBandeira(timeCasa)} x ${comBandeira(timeFora)}** (${fase}) — ${formatKickoff(kickoff)}.`,
     ephemeral: true,
@@ -118,6 +124,14 @@ async function editarJogo(interaction) {
     return interaction.reply({ content: `Jogo #${id} não encontrado.`, ephemeral: true });
   }
   const j = rows[0];
+
+  const mudancas = {};
+  if (fase) mudancas.fase = fase;
+  if (timeCasa) mudancas.time_casa = timeCasa.trim();
+  if (timeFora) mudancas.time_fora = timeFora.trim();
+  if (kickoffStr) mudancas.kickoff = new Date(j.kickoff).toISOString();
+  await logarAcao(interaction, 'jogo_editar', { jogoId: j.id, detalhes: mudancas });
+
   await interaction.reply({
     content: `Jogo #${j.id} atualizado: **${comBandeira(j.time_casa)} x ${comBandeira(j.time_fora)}** (${j.fase}) — ${formatKickoff(j.kickoff)}.`,
     ephemeral: true,
@@ -134,6 +148,12 @@ async function deletarJogo(interaction) {
     return interaction.reply({ content: `Jogo #${id} não encontrado.`, ephemeral: true });
   }
   const j = rows[0];
+
+  await logarAcao(interaction, 'jogo_deletar', {
+    jogoId: id,
+    detalhes: { fase: j.fase, time_casa: j.time_casa, time_fora: j.time_fora },
+  });
+
   await interaction.reply({
     content: `Jogo #${id} **${comBandeira(j.time_casa)} x ${comBandeira(j.time_fora)}** (${j.fase}) deletado (e todos os palpites associados).`,
     ephemeral: true,
