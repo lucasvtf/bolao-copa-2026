@@ -1,6 +1,7 @@
 import cron from 'node-cron';
 import { EmbedBuilder } from 'discord.js';
 import { pool } from '../db/pool.js';
+import { importarJogos } from '../services/importMatches.js';
 import { getCanal } from '../utils/canais.js';
 import { formatKickoffDuplo } from '../utils/data.js';
 import { comBandeira } from '../utils/bandeiras.js';
@@ -13,6 +14,15 @@ export function registerMatinal(client) {
 }
 
 export async function rodarMatinal(client) {
+  if (process.env.FOOTBALL_API_KEY) {
+    try {
+      const result = await importarJogos();
+      console.log('[matinal] importarJogos:', result);
+    } catch (err) {
+      console.error('[matinal] API falhou (segue com jogos manuais):', err.message);
+    }
+  }
+
   const { rows: jogos } = await pool.query(`
     SELECT id, fase, time_casa, time_fora, kickoff
       FROM jogos
