@@ -1,7 +1,7 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { pool } from '../db/pool.js';
 
-const TOP_N = 20;
+const TOP_N = 30;
 
 export const data = new SlashCommandBuilder()
   .setName('ranking')
@@ -20,9 +20,15 @@ export async function execute(interaction) {
     return interaction.reply({ content: 'Ninguém pontuou ainda.', ephemeral: true });
   }
 
+  let posAtual = 0;
+  let pontosAnterior = null;
   const linhas = rows.map((u, i) => {
-    const pos = String(i + 1).padStart(2, ' ');
-    const medalha = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '  ';
+    if (u.pontos_total !== pontosAnterior) {
+      posAtual = i + 1;
+      pontosAnterior = u.pontos_total;
+    }
+    const pos = String(posAtual).padStart(2, ' ');
+    const medalha = posAtual === 1 ? '🥇' : posAtual === 2 ? '🥈' : posAtual === 3 ? '🥉' : '  ';
     return `${medalha} \`${pos}.\` <@${u.id}> — **${u.pontos_total}** pts`;
   });
 

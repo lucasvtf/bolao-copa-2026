@@ -44,10 +44,17 @@ test('vencedor errado → 0', () => {
   assert.equal(r.classificadoCerto, false);
 });
 
-test('palpite empate em jogo que teve vencedor → 0', () => {
+test('palpite empate + avanca certo (jogo teve vencedor) → 3 × mult', () => {
   const r = calcularPontos(palpite({ placar_casa: 1, placar_fora: 1, avanca: 'Brasil' }), jogo());
-  assert.equal(r.pontos, 0);
+  assert.equal(r.pontos, 3);
+  assert.equal(r.classificadoCerto, true);
   assert.equal(r.previuPenaltis, false);
+});
+
+test('palpite empate + avanca errado (jogo teve vencedor) → 0', () => {
+  const r = calcularPontos(palpite({ placar_casa: 1, placar_fora: 1, avanca: 'Portugal' }), jogo());
+  assert.equal(r.pontos, 0);
+  assert.equal(r.classificadoCerto, false);
 });
 
 test('palpite empate acertou classificado dos pênaltis (placar errado) → 3 + 1 = 4 × mult', () => {

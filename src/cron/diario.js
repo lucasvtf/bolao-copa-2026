@@ -91,11 +91,17 @@ async function montarPostRanking() {
   const { rows } = await pool.query(
     `SELECT id, pontos_total FROM usuarios
       ORDER BY pontos_total DESC, username ASC
-      LIMIT 10`,
+      LIMIT 30`,
   );
+  let posAtual = 0;
+  let pontosAnterior = null;
   const linhas = rows.length
     ? rows.map((u, i) => {
-        const medalha = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `\`${i + 1}.\``;
+        if (u.pontos_total !== pontosAnterior) {
+          posAtual = i + 1;
+          pontosAnterior = u.pontos_total;
+        }
+        const medalha = posAtual === 1 ? '🥇' : posAtual === 2 ? '🥈' : posAtual === 3 ? '🥉' : `\`${posAtual}.\``;
         return `${medalha} <@${u.id}> — **${u.pontos_total}** pts`;
       })
     : ['_(vazio)_'];

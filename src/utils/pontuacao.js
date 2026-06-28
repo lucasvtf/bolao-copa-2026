@@ -10,8 +10,7 @@ export function calcularPontos(palpite, jogo) {
   const classificadoPalpite =
     palpite.placar_casa > palpite.placar_fora ? jogo.time_casa
     : palpite.placar_casa < palpite.placar_fora ? jogo.time_fora
-    : jogo.foi_penaltis ? palpite.avanca
-    : null;
+    : palpite.avanca;
 
   const placarExato =
     palpite.placar_casa === jogo.placar_casa &&
