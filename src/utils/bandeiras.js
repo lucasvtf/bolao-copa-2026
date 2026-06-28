@@ -26,6 +26,7 @@ const MAP = {
   alemanha: '🇩🇪', germany: '🇩🇪', deutschland: '🇩🇪',
   austria: '🇦🇹',
   belgica: '🇧🇪', belgium: '🇧🇪',
+  bosnia: '🇧🇦', bosniaeherzegovina: '🇧🇦', bosniaherzegovina: '🇧🇦', bosniah: '🇧🇦', bosniaandherzegovina: '🇧🇦',
   croacia: '🇭🇷', croatia: '🇭🇷',
   dinamarca: '🇩🇰', denmark: '🇩🇰',
   escocia: '🏴󠁧󠁢󠁳󠁣󠁴󠁿', scotland: '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
@@ -61,6 +62,7 @@ const MAP = {
   gana: '🇬🇭', ghana: '🇬🇭',
   marrocos: '🇲🇦', morocco: '🇲🇦',
   nigeria: '🇳🇬',
+  rddocongo: '🇨🇩', congodemocratico: '🇨🇩', drcongo: '🇨🇩', democraticrepublicofthecongo: '🇨🇩',
   senegal: '🇸🇳',
   tunisia: '🇹🇳',
   // Ásia e Oceania
