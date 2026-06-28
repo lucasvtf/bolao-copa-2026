@@ -22,9 +22,9 @@ export async function execute(interaction) {
 
   let posAtual = 0;
   let pontosAnterior = null;
-  const linhas = rows.map((u, i) => {
+  const linhas = rows.map((u) => {
     if (u.pontos_total !== pontosAnterior) {
-      posAtual = i + 1;
+      posAtual += 1;
       pontosAnterior = u.pontos_total;
     }
     const pos = String(posAtual).padStart(2, ' ');

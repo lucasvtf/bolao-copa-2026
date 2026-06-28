@@ -96,13 +96,14 @@ async function montarPostRanking() {
   let posAtual = 0;
   let pontosAnterior = null;
   const linhas = rows.length
-    ? rows.map((u, i) => {
+    ? rows.map((u) => {
         if (u.pontos_total !== pontosAnterior) {
-          posAtual = i + 1;
+          posAtual += 1;
           pontosAnterior = u.pontos_total;
         }
-        const medalha = posAtual === 1 ? '🥇' : posAtual === 2 ? '🥈' : posAtual === 3 ? '🥉' : `\`${posAtual}.\``;
-        return `${medalha} <@${u.id}> — **${u.pontos_total}** pts`;
+        const pos = String(posAtual).padStart(2, ' ');
+        const medalha = posAtual === 1 ? '🥇' : posAtual === 2 ? '🥈' : posAtual === 3 ? '🥉' : '  ';
+        return `${medalha} \`${pos}.\` <@${u.id}> — **${u.pontos_total}** pts`;
       })
     : ['_(vazio)_'];
 
