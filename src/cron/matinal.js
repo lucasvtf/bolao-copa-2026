@@ -14,7 +14,7 @@ export function registerMatinal(client) {
 }
 
 export async function rodarMatinal(client) {
-  if (process.env.FOOTBALL_API_KEY) {
+  if (process.env.FOOTBALL_API_KEY && process.env.IMPORTAR_NO_MATINAL === 'true') {
     try {
       const result = await importarJogos();
       console.log('[matinal] importarJogos:', result);
