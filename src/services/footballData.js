@@ -4,6 +4,7 @@ const BASE = 'https://api.football-data.org/v4';
 const COMPETITION = 'WC';
 
 const KNOCKOUT_STAGES = [
+  'LAST_32',
   'LAST_16',
   'QUARTER_FINALS',
   'SEMI_FINALS',
