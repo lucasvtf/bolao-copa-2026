@@ -26,7 +26,7 @@ export async function execute(interaction) {
 
     const top = [...r.detalhes]
       .sort((a, b) => b.pontos - a.pontos)
-      .slice(0, 10)
+      .slice(0, 30)
       .map((d) => `<@${d.usuario_id}>: ${d.pontos} pts`)
       .join('\n') || '_(nenhum palpite)_';
 
