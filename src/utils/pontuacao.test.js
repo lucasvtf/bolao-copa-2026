@@ -20,15 +20,16 @@ const palpite = (over = {}) => ({
   ...over,
 });
 
-test('placar exato sem prorrogação → 5 × mult', () => {
+test('placar exato com vencedor certo → (5+3) × mult', () => {
   const r = calcularPontos(palpite(), jogo());
-  assert.equal(r.pontos, 5);
+  assert.equal(r.pontos, 8);
   assert.equal(r.placarExato, true);
+  assert.equal(r.classificadoCerto, true);
 });
 
-test('placar exato × multiplicador 4 (final) → 20', () => {
+test('placar exato × multiplicador 4 (final) → (5+3) × 4 = 32', () => {
   const r = calcularPontos(palpite(), jogo({ multiplicador: 4 }));
-  assert.equal(r.pontos, 20);
+  assert.equal(r.pontos, 32);
 });
 
 test('vencedor certo, placar errado → 3 × mult', () => {
@@ -57,7 +58,7 @@ test('palpite empate + avanca errado (jogo teve vencedor) → 0', () => {
   assert.equal(r.classificadoCerto, false);
 });
 
-test('palpite empate acertou classificado dos pênaltis (placar errado) → 3 + 1 = 4 × mult', () => {
+test('palpite empate acertou classificado dos pênaltis (placar errado) → (3+1) × mult', () => {
   const j = jogo({ placar_casa: 0, placar_fora: 0, classificado: 'Brasil', foi_penaltis: true });
   const r = calcularPontos(palpite({ placar_casa: 1, placar_fora: 1, avanca: 'Brasil' }), j);
   assert.equal(r.pontos, 4);
@@ -65,10 +66,10 @@ test('palpite empate acertou classificado dos pênaltis (placar errado) → 3 + 
   assert.equal(r.previuPenaltis, true);
 });
 
-test('placar exato em empate com pênaltis mas errou classificado → 5 + 1 = 6 × mult', () => {
+test('placar exato em empate com pênaltis mas errou classificado → 5 × mult (bônus não cumula com placar exato)', () => {
   const j = jogo({ placar_casa: 0, placar_fora: 0, classificado: 'Portugal', foi_penaltis: true });
   const r = calcularPontos(palpite({ placar_casa: 0, placar_fora: 0, avanca: 'Brasil' }), j);
-  assert.equal(r.pontos, 6);
+  assert.equal(r.pontos, 5);
   assert.equal(r.placarExato, true);
   assert.equal(r.classificadoCerto, false);
   assert.equal(r.previuPenaltis, true);
@@ -83,11 +84,12 @@ test('palpite empate (placar errado) errou classificado dos pênaltis → só b�
   assert.equal(r.previuPenaltis, true);
 });
 
-test('placar exato em empate com pênaltis → 5 + 1 = 6 × mult', () => {
+test('placar exato + classificado certo em empate com pênaltis → (5+3) × mult (bônus não cumula)', () => {
   const j = jogo({ placar_casa: 1, placar_fora: 1, classificado: 'Brasil', foi_penaltis: true });
   const r = calcularPontos(palpite({ placar_casa: 1, placar_fora: 1, avanca: 'Brasil' }), j);
-  assert.equal(r.pontos, 6);
+  assert.equal(r.pontos, 8);
   assert.equal(r.placarExato, true);
+  assert.equal(r.classificadoCerto, true);
   assert.equal(r.previuPenaltis, true);
 });
 
@@ -111,9 +113,16 @@ test('bônus pênaltis só conta se palpitou empate', () => {
   assert.equal(r.pontos, 3);
 });
 
-test('breakdown contém os componentes', () => {
+test('breakdown: placar exato + classificado certo (sem bônus pênaltis)', () => {
   const j = jogo({ placar_casa: 1, placar_fora: 1, classificado: 'Brasil', foi_penaltis: true });
   const r = calcularPontos(palpite({ placar_casa: 1, placar_fora: 1, avanca: 'Brasil' }), j);
   const rotulos = r.breakdown.map((b) => b.rotulo);
-  assert.deepEqual(rotulos, ['Placar exato', 'Previu pênaltis']);
+  assert.deepEqual(rotulos, ['Placar exato', 'Classificado certo']);
+});
+
+test('breakdown: classificado certo + bônus pênaltis (placar errado)', () => {
+  const j = jogo({ placar_casa: 0, placar_fora: 0, classificado: 'Brasil', foi_penaltis: true });
+  const r = calcularPontos(palpite({ placar_casa: 1, placar_fora: 1, avanca: 'Brasil' }), j);
+  const rotulos = r.breakdown.map((b) => b.rotulo);
+  assert.deepEqual(rotulos, ['Classificado certo', 'Previu pênaltis']);
 });

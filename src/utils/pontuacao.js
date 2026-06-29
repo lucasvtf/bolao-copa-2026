@@ -23,13 +23,14 @@ export function calcularPontos(palpite, jogo) {
   let pontosBase = 0;
 
   if (placarExato) {
-    pontosBase = 5;
+    pontosBase += 5;
     breakdown.push({ rotulo: 'Placar exato', valor: 5 });
-  } else if (classificadoCerto) {
-    pontosBase = 3;
+  }
+  if (classificadoCerto) {
+    pontosBase += 3;
     breakdown.push({ rotulo: 'Classificado certo', valor: 3 });
   }
-  if (previuPenaltis) {
+  if (previuPenaltis && !placarExato) {
     pontosBase += 1;
     breakdown.push({ rotulo: 'Previu pênaltis', valor: 1 });
   }
