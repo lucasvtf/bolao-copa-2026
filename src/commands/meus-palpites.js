@@ -2,6 +2,7 @@ import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { pool } from '../db/pool.js';
 import { formatKickoffDuplo } from '../utils/data.js';
 import { comBandeira } from '../utils/bandeiras.js';
+import { calcularPontos } from '../utils/pontuacao.js';
 
 const LIMIT = 25;
 
@@ -16,6 +17,7 @@ export async function execute(interaction) {
             j.time_casa,
             j.time_fora,
             j.kickoff,
+            j.multiplicador,
             j.placar_casa   AS placar_real_casa,
             j.placar_fora   AS placar_real_fora,
             j.classificado,
@@ -39,20 +41,38 @@ export async function execute(interaction) {
   const linhas = rows.map((r) => {
     const palpite = `${r.palpite_casa}-${r.palpite_fora}${r.avanca ? ` (→ ${comBandeira(r.avanca)})` : ''}`;
     let status;
+    let explicacao = null;
+
     if (r.processado) {
       const real = `${r.placar_real_casa}-${r.placar_real_fora}${r.classificado ? ` (→ ${comBandeira(r.classificado)})` : ''}`;
       status = `resultado **${real}** · **${r.pontos ?? 0} pts**`;
+      const detalhes = calcularPontos(
+        { placar_casa: r.palpite_casa, placar_fora: r.palpite_fora, avanca: r.avanca },
+        {
+          time_casa: r.time_casa,
+          time_fora: r.time_fora,
+          placar_casa: r.placar_real_casa,
+          placar_fora: r.placar_real_fora,
+          classificado: r.classificado,
+          multiplicador: r.multiplicador,
+        },
+      );
+      explicacao = detalhes.breakdown.length > 0
+        ? `${detalhes.breakdown.map((b) => `+${b.valor} ${b.rotulo}`).join(' · ')} (× ${detalhes.multiplicador})`
+        : 'errou tudo';
     } else if (r.placar_real_casa !== null) {
       status = `resultado **${r.placar_real_casa}-${r.placar_real_fora}** · _aguardando processamento_`;
     } else {
       status = `_${formatKickoffDuplo(r.kickoff)}_`;
     }
-    return `**#${r.jogo_id}** ${comBandeira(r.time_casa)} x ${comBandeira(r.time_fora)} · _${r.fase}_\n→ palpite: \`${palpite}\` · ${status}`;
+
+    const base = `**#${r.jogo_id}** ${comBandeira(r.time_casa)} x ${comBandeira(r.time_fora)} · _${r.fase}_\n→ palpite: \`${palpite}\` · ${status}`;
+    return explicacao ? `${base}\n   ${explicacao}` : base;
   });
 
   const embed = new EmbedBuilder()
     .setTitle(`Palpites de ${interaction.user.username}`)
-    .setDescription(linhas.join('\n\n'))
+    .setDescription(linhas.join('\n\n').slice(0, 4096))
     .setColor(0x5865f2);
 
   await interaction.reply({ embeds: [embed], ephemeral: true });
