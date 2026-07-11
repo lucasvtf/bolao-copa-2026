@@ -22,6 +22,7 @@ export async function execute(interaction) {
             j.placar_fora   AS placar_real_fora,
             j.classificado,
             j.processado,
+            j.nota,
             p.placar_casa   AS palpite_casa,
             p.placar_fora   AS palpite_fora,
             p.avanca,
@@ -44,22 +45,26 @@ export async function execute(interaction) {
     let explicacao = null;
 
     if (r.processado) {
-      const real = `${r.placar_real_casa}-${r.placar_real_fora}${r.classificado ? ` (→ ${comBandeira(r.classificado)})` : ''}`;
+      const real = `${r.placar_real_casa ?? '?'}-${r.placar_real_fora ?? '?'}${r.classificado ? ` (→ ${comBandeira(r.classificado)})` : ''}`;
       status = `resultado **${real}** · **${r.pontos ?? 0} pts**`;
-      const detalhes = calcularPontos(
-        { placar_casa: r.palpite_casa, placar_fora: r.palpite_fora, avanca: r.avanca },
-        {
-          time_casa: r.time_casa,
-          time_fora: r.time_fora,
-          placar_casa: r.placar_real_casa,
-          placar_fora: r.placar_real_fora,
-          classificado: r.classificado,
-          multiplicador: r.multiplicador,
-        },
-      );
-      explicacao = detalhes.breakdown.length > 0
-        ? `${detalhes.breakdown.map((b) => `+${b.valor} ${b.rotulo}`).join(' · ')} (× ${detalhes.multiplicador})`
-        : 'errou tudo';
+      if (r.nota) {
+        explicacao = `⚠️ ${r.nota}`;
+      } else if (r.placar_real_casa !== null) {
+        const detalhes = calcularPontos(
+          { placar_casa: r.palpite_casa, placar_fora: r.palpite_fora, avanca: r.avanca },
+          {
+            time_casa: r.time_casa,
+            time_fora: r.time_fora,
+            placar_casa: r.placar_real_casa,
+            placar_fora: r.placar_real_fora,
+            classificado: r.classificado,
+            multiplicador: r.multiplicador,
+          },
+        );
+        explicacao = detalhes.breakdown.length > 0
+          ? `${detalhes.breakdown.map((b) => `+${b.valor} ${b.rotulo}`).join(' · ')} (× ${detalhes.multiplicador})`
+          : 'errou tudo';
+      }
     } else if (r.placar_real_casa !== null) {
       status = `resultado **${r.placar_real_casa}-${r.placar_real_fora}** · _aguardando processamento_`;
     } else {

@@ -32,6 +32,7 @@ ALTER TABLE jogos ADD CONSTRAINT jogos_multiplicador_check
 
 ALTER TABLE jogos ADD COLUMN IF NOT EXISTS aviso_deadline_postado BOOLEAN NOT NULL DEFAULT FALSE;
 ALTER TABLE jogos ADD COLUMN IF NOT EXISTS resultado_postado BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE jogos ADD COLUMN IF NOT EXISTS nota TEXT;
 
 CREATE INDEX IF NOT EXISTS jogos_kickoff_idx ON jogos (kickoff);
 CREATE INDEX IF NOT EXISTS jogos_processado_idx ON jogos (processado) WHERE processado = FALSE;
