@@ -4,7 +4,7 @@ import { formatKickoffDuplo } from '../utils/data.js';
 import { comBandeira } from '../utils/bandeiras.js';
 import { calcularPontos } from '../utils/pontuacao.js';
 
-const LIMIT = 25;
+const LIMIT = 40;
 
 export const data = new SlashCommandBuilder()
   .setName('meus-palpites')
