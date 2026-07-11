@@ -70,10 +70,57 @@ export async function execute(interaction) {
     return explicacao ? `${base}\n   ${explicacao}` : base;
   });
 
-  const embed = new EmbedBuilder()
-    .setTitle(`Palpites de ${interaction.user.username}`)
-    .setDescription(linhas.join('\n\n').slice(0, 4096))
-    .setColor(0x5865f2);
+  const MAX_DESC = 3800;
+  const porFase = new Map();
+  for (let i = 0; i < rows.length; i++) {
+    const fase = rows[i].fase;
+    if (!porFase.has(fase)) porFase.set(fase, []);
+    porFase.get(fase).push(linhas[i]);
+  }
 
-  await interaction.reply({ embeds: [embed], ephemeral: true });
+  const embeds = [];
+  for (const [fase, linhasFase] of porFase) {
+    let pontosFase = 0;
+    for (const r of rows) if (r.fase === fase) pontosFase += r.pontos ?? 0;
+
+    let atual = '';
+    let parte = 1;
+    const totalPartes = (() => {
+      let p = 1;
+      let s = '';
+      for (const l of linhasFase) {
+        const prox = (s ? '\n\n' : '') + l;
+        if (s.length + prox.length > MAX_DESC) { p++; s = l; } else { s += prox; }
+      }
+      return p;
+    })();
+
+    const flushar = () => {
+      const titulo = totalPartes > 1
+        ? `${fase} (${pontosFase} pts) — parte ${parte}/${totalPartes}`
+        : `${fase} (${pontosFase} pts)`;
+      embeds.push(new EmbedBuilder().setTitle(titulo).setDescription(atual).setColor(0x5865f2));
+      atual = '';
+      parte++;
+    };
+
+    for (const linha of linhasFase) {
+      const proxima = (atual ? '\n\n' : '') + linha;
+      if (atual.length + proxima.length > MAX_DESC) {
+        flushar();
+        atual = linha;
+      } else {
+        atual += proxima;
+      }
+    }
+    if (atual) flushar();
+  }
+
+  const total = rows.reduce((s, r) => s + (r.pontos ?? 0), 0);
+  embeds[0].setAuthor({ name: `Palpites de ${interaction.user.username} — ${total} pts totais` });
+
+  await interaction.reply({ embeds: [embeds[0]], ephemeral: true });
+  for (let i = 1; i < embeds.length; i++) {
+    await interaction.followUp({ embeds: [embeds[i]], ephemeral: true });
+  }
 }
